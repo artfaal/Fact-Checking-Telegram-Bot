@@ -169,7 +169,10 @@ class CommandHandler:
             result += f"• Этап 1 (выбор источников): {debug_info.stage1_time:.2f}с\n"
             result += f"• Этап 2 (фактчекинг): {debug_info.stage2_time:.2f}с\n"
             result += f"• Общее время: {debug_info.stage1_time + debug_info.stage2_time:.2f}с\n\n"
-            
+
+            if debug_info.stage2_attempts:
+                result += f"🔁 **Попыток этапа 2:** {debug_info.stage2_attempts}\n"
+
             result += f"🌐 **Источники:** {debug_info.sources_count} доменов\n"
             
             if debug_info.sources_found:

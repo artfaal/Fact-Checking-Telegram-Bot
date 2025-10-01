@@ -23,10 +23,15 @@ def test_config():
         # Проверяем что конфигурация загружается
         logger.info(f"📊 Модель GPT: {Config.GPT_MODEL}")
         logger.info(f"🎯 Режим фактчекинга: {Config.FACT_CHECK_MODE}")
+        logger.info(f"🕸️ Модель для этапа 2: {Config.FACT_CHECK_MODEL}")
         logger.info(f"🔧 Отладочный режим: {Config.DEBUG_MODE}")
         logger.info(f"📺 Показывать все сообщения: {Config.SHOW_ALL_MESSAGES}")
         logger.info(f"📤 Отправлять debug info: {Config.SEND_DEBUG_INFO}")
         logger.info(f"🌐 Максимум источников: {Config.MAX_SOURCE_DOMAINS}")
+        logger.info(f"🔢 Лимит доменов (первая попытка): {Config.STAGE2_INITIAL_DOMAIN_LIMIT}")
+        logger.info(f"🔁 Лимит доменов (повтор): {Config.STAGE2_RETRY_DOMAIN_LIMIT}")
+        logger.info(f"⏱️ Таймаут фактчека: {Config.FACT_CHECK_TIMEOUT}s")
+        logger.info(f"🧠 Усилие веб-поиска: {Config.WEB_SEARCH_EFFORT}")
         
         # Проверяем валидацию
         Config.validate()

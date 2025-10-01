@@ -104,6 +104,11 @@ DEBUG_MODE=true                    # Enable debug info
 SHOW_ALL_MESSAGES=true            # Show hidden messages too
 SEND_DEBUG_INFO=true              # Send debug to chat
 MAX_SOURCE_DOMAINS=20             # Max domains for fact-checking
+STAGE2_INITIAL_DOMAIN_LIMIT=8     # Domains in first stage-2 attempt
+STAGE2_RETRY_DOMAIN_LIMIT=5       # Domains in retry attempt
+FACT_CHECK_TIMEOUT=45             # Timeout per attempt (seconds)
+FACT_CHECK_MODEL=gpt-4o                # Responses model for stage 2 web search
+WEB_SEARCH_EFFORT=medium          # Reasoning effort for web search (low/medium/high)
 ```
 
 ## Core Components

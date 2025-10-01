@@ -16,7 +16,12 @@ class Config:
     # Настройки фактчекинга
     GPT_MODEL = os.getenv('GPT_MODEL', 'gpt-5')
     FACT_CHECK_MODE = os.getenv('FACT_CHECK_MODE', 'smart')  # smart, strict, permissive
+    FACT_CHECK_MODEL = os.getenv('FACT_CHECK_MODEL', 'gpt-4o')
+    WEB_SEARCH_EFFORT = os.getenv('WEB_SEARCH_EFFORT', 'medium')
     MAX_SOURCE_DOMAINS = int(os.getenv('MAX_SOURCE_DOMAINS', 20))
+    STAGE2_INITIAL_DOMAIN_LIMIT = int(os.getenv('STAGE2_INITIAL_DOMAIN_LIMIT', 8))
+    STAGE2_RETRY_DOMAIN_LIMIT = int(os.getenv('STAGE2_RETRY_DOMAIN_LIMIT', 5))
+    FACT_CHECK_TIMEOUT = float(os.getenv('FACT_CHECK_TIMEOUT', 45))
     ENABLE_AUTO_SOURCES = os.getenv('ENABLE_AUTO_SOURCES', 'true').lower() == 'true'
     
     # Настройки отладки
