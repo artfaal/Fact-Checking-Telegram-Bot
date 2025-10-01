@@ -485,24 +485,32 @@ Verification criteria:
         missing_evidence = result.get("missing_evidence", "")
         
         if verification_status == "confirmed" and confidence_score >= 90:
-            comment = f"Достоверно (доверие: {confidence_score}%)"
+            comment = "Достоверно"
+            if detailed_findings:
+                comment += f" - {detailed_findings}"
         elif verification_status == "partially_confirmed" and confidence_score >= 60:
-            comment = f"Частично подтверждено (доверие: {confidence_score}%)"
+            comment = "Частично подтверждено"
+            if detailed_findings:
+                comment += f" - {detailed_findings}"
+            elif contradictions:
+                comment += f" - некоторые детали не совпадают: {contradictions}"
         elif verification_status == "contradictory":
-            comment = f"Противоречит источникам (доверие: {confidence_score}%)"
+            comment = "Противоречит источникам"
             if contradictions:
                 comment += f" - {contradictions}"
+            elif detailed_findings:
+                comment += f" - {detailed_findings}"
         elif verification_status == "unconfirmed" or confidence_score < 30:
-            comment = f"Не подтверждено (доверие: {confidence_score}%)"
+            comment = "Не подтверждено"
             if missing_evidence:
                 comment += f" - {missing_evidence}"
+            elif detailed_findings:
+                comment += f" - {detailed_findings}"
         else:
             # Fallback for edge cases
-            comment = f"Требует проверки (доверие: {confidence_score}%)"
-        
-        # Add detailed findings if available and not too long
-        if detailed_findings and len(detailed_findings) < 100:
-            comment += f" | {detailed_findings}"
+            comment = "Требует дополнительной проверки"
+            if detailed_findings:
+                comment += f" - {detailed_findings}"
         
         # Save confidence_score and verification_status to debug_info
         if debug:
