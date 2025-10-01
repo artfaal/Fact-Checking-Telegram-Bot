@@ -24,9 +24,8 @@ class Config:
     STAGE1_MAX_TOKENS = int(os.getenv('STAGE1_MAX_TOKENS', 1500))
     STAGE2_MAX_TOKENS = int(os.getenv('STAGE2_MAX_TOKENS', 2000))
     
-    # Настройки отладки
-    DEBUG_MODE = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
-    SEND_DEBUG_INFO = os.getenv('SEND_DEBUG_INFO', 'false').lower() == 'true'
+    # Настройки отладки - всегда включены для логов
+    DEBUG_MODE = True  # Всегда включено для полных логов
     
     @classmethod
     def validate(cls):

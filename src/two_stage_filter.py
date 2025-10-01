@@ -27,6 +27,8 @@ class DebugInfo:
     web_search_used: bool = False
     fallback_used: bool = False
     stage2_attempts: int = 0
+    confidence_score: int = 0
+    verification_status: str = ""
     
     def __post_init__(self):
         if self.sources_found is None:
@@ -501,6 +503,11 @@ Verification criteria:
         # Add detailed findings if available and not too long
         if detailed_findings and len(detailed_findings) < 100:
             comment += f" | {detailed_findings}"
+        
+        # Save confidence_score and verification_status to debug_info
+        if debug:
+            debug.confidence_score = confidence_score
+            debug.verification_status = verification_status
         
         return category, comment
 

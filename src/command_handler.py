@@ -102,14 +102,20 @@ class CommandHandler:
             
             # Формируем результат
             result_message = await self._format_fact_check_result(
-                text_to_check, category, comment, debug_info
+                category, comment, debug_info
             )
             
-            # Обновляем сообщение с результатом
-            await bot.edit_message_text(
+            # Отправляем reply на оригинальное сообщение
+            await bot.send_message(
                 chat_id=message.chat.id,
-                message_id=processing_msg.id,
-                text=result_message
+                text=result_message,
+                reply_to_message_id=message.id
+            )
+            
+            # Удаляем сообщение "обрабатываю"
+            await bot.delete_messages(
+                chat_id=message.chat.id,
+                message_ids=processing_msg.id
             )
             
             logger.info(f"✅ Проверен факт: {category} | {comment}")
@@ -152,14 +158,12 @@ Discord объявил новую функцию ИИ-модерации гол�
 
 **⚙️ Настройки бота:**
 • Модель: {model}
-• Отладка: {debug}
 
 **💡 Команды:**
 • `/help` - Показать эту справку
 • `/start` - Начать работу с ботом
 """.format(
-            model=Config.GPT_MODEL,
-            debug="включена" if Config.DEBUG_MODE else "выключена"
+            model=Config.GPT_MODEL
         )
         
         await bot.send_message(
@@ -204,99 +208,56 @@ Discord объявил новую функцию ИИ-модерации гол�
         if result_text:
             result += f"🤖 **Комментарий:** {result_text}\n"
         
-        # Добавляем отладочную информацию если включена
-        if debug_info and Config.SEND_DEBUG_INFO:
-            result += f"\n🔧 **DEBUG INFO:**\n"
-            result += f"⏱️ **Время выполнения:**\n"
-            result += f"• Этап 1 (выбор источников): {debug_info.stage1_time:.2f}с\n"
-            result += f"• Этап 2 (фактчекинг): {debug_info.stage2_time:.2f}с\n"
-            result += f"• Общее время: {debug_info.stage1_time + debug_info.stage2_time:.2f}с\n\n"
-
-            if debug_info.stage2_attempts:
-                result += f"🔁 **Попыток этапа 2:** {debug_info.stage2_attempts}\n"
-
-            result += f"🌐 **Источники:** {debug_info.sources_count} доменов\n"
-            
-            if debug_info.sources_found:
-                sources_preview = debug_info.sources_found[:5]
-                sources_text = ", ".join(sources_preview)
-                if len(debug_info.sources_found) > 5:
-                    sources_text += f" и ещё {len(debug_info.sources_found)-5}"
-                result += f"📋 **Проверено:** {sources_text}\n"
-            
-            if debug_info.reasoning:
-                result += f"💭 **Логика выбора:** {debug_info.reasoning}\n"
-            
-            # Флаги работы
-            flags = []
-            if debug_info.web_search_used:
-                flags.append("🔍 веб-поиск")
-            if debug_info.fallback_used:
-                flags.append("🔄 резервный режим")
-            
-            if flags:
-                result += f"🚩 **Использовано:** {', '.join(flags)}\n"
+        # Отладочная информация теперь только в логах
         
         result += f"\n💡 **Подсказка:** Отправьте любое сообщение для проверки фактов"
         
         return result
     
-    async def _format_fact_check_result(self, original_text: str, category: str, 
+    async def _format_fact_check_result(self, category: str, 
                                      comment: str, debug_info: Optional[DebugInfo]) -> str:
         """Форматирует результат проверки фактов для отправки"""
         
-        # Определяем эмодзи и статус
+        # Получаем confidence_score из debug_info
+        confidence_score = debug_info.confidence_score if debug_info else 0
+        verification_status = debug_info.verification_status if debug_info else ""
+        
+        # Определяем эмодзи на основе confidence_score
+        confidence_emoji = self._get_confidence_emoji(confidence_score)
+        
+        # Для спама - упрощенный формат
         if category == "скрыто":
-            status_emoji = "🗑️"
-            status_text = f"**СПАМ**"
-            result_text = comment
-        else:
-            emoji_map = {"новости": "📰", "развлечения": "🎬", "другое": "📄"}
-            status_emoji = emoji_map.get(category, "📄")
-            status_text = f"**{category.upper()}**"
-            result_text = comment if comment else "Информация обработана"
+            return f"{confidence_emoji} Доверие: {confidence_score}%\n🤖 Комментарий: {comment}"
         
-        # Основной результат
-        result = f"✅ **Проверка фактов завершена**\n\n"
-        result += f"📝 **Ваше сообщение:**\n{original_text}\n\n"
-        result += f"{status_emoji} **Категория:** {status_text}\n"
+        # Для развлечений/шуток - упрощенный формат
+        if category == "развлечения" and confidence_score < 50:
+            if debug_info and debug_info.reasoning:
+                return f"🤡 Доверие: {confidence_score}%\n🤖 Комментарий: {comment}\n💭 Логика выбора: {debug_info.reasoning}"
+            else:
+                return f"🤡 Доверие: {confidence_score}%\n🤖 Комментарий: {comment}"
         
-        if result_text:
-            result += f"🤖 **Результат:** {result_text}\n"
+        # Основной формат для фактчекинга
+        result = f"{confidence_emoji} Доверие: {confidence_score}%\n"
+        result += f"🤖 Комментарий: {comment}\n"
         
-        # Добавляем отладочную информацию если включена
-        if debug_info and Config.SEND_DEBUG_INFO:
-            result += f"\n🔧 **DEBUG INFO:**\n"
-            result += f"⏱️ **Время выполнения:**\n"
-            result += f"• Этап 1 (выбор источников): {debug_info.stage1_time:.2f}с\n"
-            result += f"• Этап 2 (фактчекинг): {debug_info.stage2_time:.2f}с\n"
-            result += f"• Общее время: {debug_info.stage1_time + debug_info.stage2_time:.2f}с\n\n"
-
-            if debug_info.stage2_attempts:
-                result += f"🔁 **Попыток этапа 2:** {debug_info.stage2_attempts}\n"
-
-            result += f"🌐 **Источники:** {debug_info.sources_count} доменов\n"
-            
-            if debug_info.sources_found:
-                sources_preview = debug_info.sources_found[:5]
-                sources_text = ", ".join(sources_preview)
-                if len(debug_info.sources_found) > 5:
-                    sources_text += f" и ещё {len(debug_info.sources_found)-5}"
-                result += f"📋 **Проверено:** {sources_text}\n"
-            
-            if debug_info.reasoning:
-                result += f"💭 **Логика выбора:** {debug_info.reasoning}\n"
-            
-            # Флаги работы
-            flags = []
-            if debug_info.web_search_used:
-                flags.append("🔍 веб-поиск")
-            if debug_info.fallback_used:
-                flags.append("🔄 резервный режим")
-            
-            if flags:
-                result += f"🚩 **Использовано:** {', '.join(flags)}\n"
+        # Добавляем источники (полный список без сокращений)
+        if debug_info and debug_info.sources_found:
+            sources_text = ", ".join(debug_info.sources_found)
+            result += f"\n🌐 Источники: {sources_text}\n"
         
-        result += f"\n💡 **Отправьте любое сообщение для новой проверки**"
+        # Добавляем логику выбора
+        if debug_info and debug_info.reasoning:
+            result += f"\n💭 Логика выбора: {debug_info.reasoning}"
         
         return result
+    
+    def _get_confidence_emoji(self, confidence_score: int) -> str:
+        """Возвращает подходящий эмодзи на основе confidence_score"""
+        if confidence_score >= 90:
+            return "✅"  # Достоверно
+        elif confidence_score >= 60:
+            return "⚠️"  # Частично подтверждено
+        elif confidence_score >= 30:
+            return "❌"  # Противоречит источникам
+        else:
+            return "❓"  # Не подтверждено
