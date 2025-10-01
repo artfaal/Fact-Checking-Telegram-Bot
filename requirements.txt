@@ -1,0 +1,4 @@
+pyrogram==2.0.106
+openai==1.52.0
+python-dotenv==1.0.0
+asyncio-throttle==1.0.2
