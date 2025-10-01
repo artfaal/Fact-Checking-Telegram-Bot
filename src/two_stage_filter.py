@@ -353,30 +353,40 @@ class TwoStageFilter:
         allowed_domains = [d for d in allowed_domains if d]
 
         prompt = f"""
-Проверь достоверность этого сообщения, используя веб-поиск ТОЛЬКО по указанным надёжным источникам.
+You are a strict fact-checker. Verify this message using web search ONLY on the specified reliable sources.
 
-Источники:
+Sources to check:
 {sources_text}
 
 {queries_text}
-Сообщение: "{text}"
+Message to verify: "{text}"
 
-Действия:
-1. Найди факты через веб-поиск по разрешённым доменам.
-2. Определи, является ли сообщение спамом или сомнительным.
-3. Если информация спорная — дай краткий комментарий.
-4. Определи категорию: новости / развлечения / другое.
-5. Верни результат строго в JSON.
+CRITICAL INSTRUCTIONS:
+1. Search the specified domains for EXACT information matching the message
+2. Verify EVERY specific claim, detail, and statement in the message
+3. Pay special attention to precise wording (e.g., "will affect" vs "will NOT affect")
+4. Look for direct quotes or official statements that confirm or contradict the claims
+5. If any detail cannot be confirmed or contradicts found information, mark as unconfirmed/contradictory
 
-Формат ответа:
+Response in strict JSON format:
 {{
-  "is_garbage": true/false,
-  "is_questionable": true/false,
-  "category": "новости/развлечения/другое",
-  "reason": "причина если мусор",
-  "comment": "комментарий если сомнительно (до 120 символов)",
-  "sources_checked": ["список проверенных источников"]
+  "verification_status": "confirmed|partially_confirmed|contradictory|unconfirmed",
+  "confidence_score": 75,
+  "category": "news|entertainment|other|spam",
+  "detailed_findings": "What exactly was found/not found in sources with specific details",
+  "contradictions": "Any contradictions found between message and sources",
+  "direct_quotes": ["Direct quotes from sources that support or contradict the message"],
+  "sources_checked": ["List of sources actually checked"],
+  "missing_evidence": "What specific claims lack evidence"
 }}
+
+CRITICAL: confidence_score MUST be a numeric integer between 0-100, NOT text like "ninety" or "high".
+
+Verification criteria:
+- "confirmed" (90-100): Direct quotes/official statements support ALL claims
+- "partially_confirmed" (60-89): Some claims supported, others unclear  
+- "contradictory" (30-59): Some claims directly contradicted by sources
+- "unconfirmed" (0-29): No supporting evidence found for key claims
 """
 
         responses_client = self.client.responses
@@ -392,7 +402,7 @@ class TwoStageFilter:
                 }],
                 input=prompt,
                 tool_choice="auto",
-                max_output_tokens=600
+                max_output_tokens=Config.STAGE2_MAX_TOKENS
             )
             initial_response = await asyncio.wait_for(create_task, timeout=timeout)
             response = await self._poll_response(responses_client, initial_response, timeout)
@@ -415,7 +425,7 @@ class TwoStageFilter:
                     }],
                     input=prompt,
                     tool_choice="auto",
-                    max_output_tokens=600
+                    max_output_tokens=Config.STAGE2_MAX_TOKENS
                 )
                 initial_response = await asyncio.wait_for(create_task, timeout=timeout)
                 response = await self._poll_response(responses_client, initial_response, timeout)
@@ -448,16 +458,50 @@ class TwoStageFilter:
             json_text = output_text[json_start:json_end]
             result = json.loads(json_text)
 
-        if result.get("is_garbage", False):
-            return "скрыто", result.get("reason", "") or "Определено как спам"
-
-        if result.get("is_questionable", False):
-            category = result.get("category", "другое")
-            comment = result.get("comment", "") or "Не удалось подтвердить автоматически, требуется ручная проверка"
-            return category, comment
-
+        # Handle new verification-based schema
+        verification_status = result.get("verification_status", "")
+        confidence_score = result.get("confidence_score", 0)
+        
+        # Validate and fix confidence_score if it's not numeric
+        if not isinstance(confidence_score, (int, float)):
+            logger.warning(f"⚠️ confidence_score не является числом: {confidence_score}, устанавливаем 0")
+            confidence_score = 0
+        else:
+            confidence_score = int(confidence_score)
+            if confidence_score < 0 or confidence_score > 100:
+                logger.warning(f"⚠️ confidence_score вне диапазона 0-100: {confidence_score}, корректируем")
+                confidence_score = max(0, min(100, confidence_score))
         category = result.get("category", "другое")
-        comment = result.get("comment", "")
+        
+        # Check for spam category first
+        if category == "spam":
+            return "скрыто", "Определено как спам"
+        
+        # Build comment based on verification status and confidence
+        detailed_findings = result.get("detailed_findings", "")
+        contradictions = result.get("contradictions", "")
+        missing_evidence = result.get("missing_evidence", "")
+        
+        if verification_status == "confirmed" and confidence_score >= 90:
+            comment = f"Достоверно (доверие: {confidence_score}%)"
+        elif verification_status == "partially_confirmed" and confidence_score >= 60:
+            comment = f"Частично подтверждено (доверие: {confidence_score}%)"
+        elif verification_status == "contradictory":
+            comment = f"Противоречит источникам (доверие: {confidence_score}%)"
+            if contradictions:
+                comment += f" - {contradictions}"
+        elif verification_status == "unconfirmed" or confidence_score < 30:
+            comment = f"Не подтверждено (доверие: {confidence_score}%)"
+            if missing_evidence:
+                comment += f" - {missing_evidence}"
+        else:
+            # Fallback for edge cases
+            comment = f"Требует проверки (доверие: {confidence_score}%)"
+        
+        # Add detailed findings if available and not too long
+        if detailed_findings and len(detailed_findings) < 100:
+            comment += f" | {detailed_findings}"
+        
         return category, comment
 
     def _build_stage2_attempts(self, sources: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:

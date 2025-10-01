@@ -152,7 +152,7 @@ class CommandHandler:
             emoji_map = {"новости": "📰", "развлечения": "🎬", "другое": "📄"}
             status_emoji = emoji_map.get(category, "📄")
             status_text = f"**{category.upper()}**"
-            result_text = comment if comment else "Выглядит достоверно"
+            result_text = comment if comment else "Информация обработана"
         
         # Основной результат
         result = f"✅ **Анализ завершен**\n\n"
