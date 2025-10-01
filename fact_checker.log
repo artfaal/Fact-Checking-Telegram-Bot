@@ -1,0 +1,108 @@
+2025-10-01 17:38:41,918 - __main__ - INFO - Конфигурация валидна
+2025-10-01 17:38:41,990 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:38:42,210 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:38:42,211 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 17:38:42,657 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 17:38:42,657 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 17:38:42,657 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 17:38:42,657 - pyrogram.session.session - INFO - Session started
+2025-10-01 17:38:42,659 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 17:38:42,790 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 17:38:42,790 - telegram_client - INFO - Telegram бот запущен
+2025-10-01 17:38:42,790 - message_processor - INFO - Процессор сообщений запущен
+2025-10-01 17:38:42,802 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-10-01 17:38:42,802 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:38:42,862 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:38:44,608 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-10-01 17:38:44,608 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 17:38:44,612 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:38:44,659 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:38:44,659 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 17:38:44,923 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 17:38:44,923 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 17:38:44,923 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 17:38:44,923 - pyrogram.session.session - INFO - Session started
+2025-10-01 17:38:44,925 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 17:38:44,925 - pyrogram.session.session - INFO - PingTask stopped
+2025-10-01 17:38:44,925 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-10-01 17:38:44,925 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 17:38:44,925 - pyrogram.session.session - INFO - Session stopped
+2025-10-01 17:38:44,925 - __main__ - ERROR - ❌ Ошибка запуска: EOF when reading a line
+2025-10-01 17:39:42,893 - __main__ - INFO - Конфигурация валидна
+2025-10-01 17:39:42,965 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:39:43,021 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:39:43,022 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 17:39:43,372 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 17:39:43,372 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 17:39:43,372 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 17:39:43,372 - pyrogram.session.session - INFO - Session started
+2025-10-01 17:39:43,374 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 17:39:43,623 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 17:39:43,624 - telegram_client - INFO - Telegram бот запущен
+2025-10-01 17:39:43,624 - message_processor - INFO - Процессор сообщений запущен
+2025-10-01 17:39:43,637 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-10-01 17:39:43,637 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:39:43,693 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:39:45,132 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-10-01 17:39:45,133 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 17:39:45,136 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:39:45,196 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:39:45,197 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 17:39:45,459 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 17:39:45,459 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 17:39:45,459 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 17:39:45,459 - pyrogram.session.session - INFO - Session started
+2025-10-01 17:39:45,460 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 17:39:45,666 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 17:39:45,666 - __main__ - INFO - ✅ Fact-checking бот запущен
+2025-10-01 17:39:45,666 - __main__ - INFO - 📡 Мониторим каналы: @dvachannel
+2025-10-01 17:39:45,666 - __main__ - INFO - 📤 Отправляем в чат: 52085530
+2025-10-01 17:39:45,862 - __main__ - INFO - ✅ Подключен к каналу: @dvachannel (ID: -1001009232144)
+2025-10-01 17:39:46,138 - __main__ - INFO - 📤 Уведомление о запуске отправлено
+2025-10-01 17:39:46,138 - __main__ - INFO - 🔄 Мониторинг запущен. Нажмите Ctrl+C для остановки
+2025-10-01 17:39:46,138 - __main__ - ERROR - ❌ Ошибка запуска: 'Client' object has no attribute 'idle'
+2025-10-01 17:39:46,138 - __main__ - INFO - 🔄 Останавливаем мониторинг...
+2025-10-01 17:39:46,142 - pyrogram.dispatcher - INFO - Stopped 16 HandlerTasks
+2025-10-01 17:39:46,142 - pyrogram.session.session - INFO - PingTask stopped
+2025-10-01 17:39:46,142 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-10-01 17:39:46,142 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 17:39:46,142 - pyrogram.session.session - INFO - Session stopped
+2025-10-01 17:39:46,142 - telegram_client - INFO - Telegram бот остановлен
+2025-10-01 17:39:46,142 - message_processor - INFO - Процессор сообщений остановлен
+2025-10-01 17:39:46,144 - pyrogram.dispatcher - INFO - Stopped 16 HandlerTasks
+2025-10-01 17:39:46,144 - pyrogram.session.session - INFO - PingTask stopped
+2025-10-01 17:39:46,144 - pyrogram.session.session - INFO - NetworkTask stopped
+2025-10-01 17:39:46,144 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 17:39:46,144 - pyrogram.session.session - INFO - Session stopped
+2025-10-01 17:39:46,144 - __main__ - INFO - ✅ Мониторинг остановлен
+2025-10-01 17:40:38,314 - __main__ - INFO - Конфигурация валидна
+2025-10-01 17:40:38,386 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:40:38,442 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:40:38,443 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 17:40:38,714 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 17:40:38,714 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 17:40:38,714 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 17:40:38,714 - pyrogram.session.session - INFO - Session started
+2025-10-01 17:40:38,717 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 17:40:38,843 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 17:40:38,843 - telegram_client - INFO - Telegram бот запущен
+2025-10-01 17:40:38,843 - message_processor - INFO - Процессор сообщений запущен
+2025-10-01 17:40:39,907 - __main__ - ERROR - ❌ Ошибка запуска: database is locked
+2025-10-01 17:40:58,817 - __main__ - INFO - Конфигурация валидна
+2025-10-01 17:40:58,892 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-10-01 17:40:58,892 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:40:58,945 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:41:00,363 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-10-01 17:41:00,364 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 17:41:00,368 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 17:41:00,418 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 17:41:00,419 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 17:41:00,693 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 17:41:00,693 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 17:41:00,693 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 17:41:00,693 - pyrogram.session.session - INFO - Session started
+2025-10-01 17:41:00,695 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 17:41:01,042 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 17:41:01,042 - telegram_client - INFO - Telegram бот запущен
+2025-10-01 17:41:01,043 - message_processor - INFO - Процессор сообщений запущен
+2025-10-01 17:41:02,095 - __main__ - ERROR - ❌ Ошибка запуска: database is locked
