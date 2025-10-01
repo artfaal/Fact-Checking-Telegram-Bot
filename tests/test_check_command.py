@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Тест команды /check для ручной проверки
+Тест функции проверки фактов
 """
 
 import asyncio
@@ -66,7 +66,7 @@ async def test_check_command():
         logger.info(f"📝 Команда: {case['text']}")
         
         # Создаем мок сообщения
-        mock_message = MockMessage(case['text'], Config.TARGET_CHAT_ID)
+        mock_message = MockMessage(case['text'], 12345)  # Фиктивный chat_id
         
         try:
             # Тестируем обработку команды

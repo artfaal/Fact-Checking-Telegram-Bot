@@ -1,11 +1,12 @@
-# Fact-Checking Telegram Bot - Claude Instructions
+# Fact-Checking Telegram Bot v3.0 - Claude Instructions
 
 ## Project Overview
-This is a production-ready Telegram fact-checking bot with two-stage analysis system using OpenAI GPT-5 and web search. The bot monitors Telegram channels, filters spam/misinformation, and categorizes messages automatically.
+This is a simplified Telegram fact-checking bot with two-stage analysis system using OpenAI GPT-5 and web search. The bot responds to direct messages from users, analyzing any text they send for fact verification.
 
 ## Architecture
 - **Two-stage fact-checking**: Content analysis → intelligent source selection → fact-checking with web search
-- **Manual commands**: `/check` for testing individual messages, `/help` for assistance
+- **Direct message handling**: Any text message sent to bot is automatically fact-checked
+- **Simple commands**: `/help` for assistance, `/start` to begin
 - **Docker support**: Full containerization with logging and volume management
 - **Comprehensive logging**: Detailed message processing with debug information
 
@@ -15,10 +16,8 @@ This is a production-ready Telegram fact-checking bot with two-stage analysis sy
 ├── src/                     # Core source code
 │   ├── config.py           # Configuration management
 │   ├── two_stage_filter.py # Two-stage fact-checking system
-│   ├── debug_processor.py  # Message processing with debug info
-│   ├── command_handler.py  # Bot commands (/check, /help)
-│   ├── sources_config.py   # Source domain management
-│   └── telegram_client.py  # Telegram API wrapper
+│   ├── command_handler.py  # Message processing and commands (/help)
+│   └── sources_config.py   # Source domain management
 ├── tests/                   # Test suite
 ├── logs/                    # Application logs (Docker volume)
 ├── data/                    # Telegram sessions (Docker volume)
@@ -83,17 +82,13 @@ All tests use mock objects to avoid external API calls during testing:
 
 ### Required Environment Variables (.env)
 ```bash
-# Telegram
+# Telegram API credentials
 TELEGRAM_API_ID=your_api_id
 TELEGRAM_API_HASH=your_api_hash
 TELEGRAM_BOT_TOKEN=your_bot_token
-TARGET_CHAT_ID=your_target_chat_id
 
-# OpenAI
+# OpenAI API key
 OPENAI_API_KEY=your_openai_key
-
-# Channels (comma-separated)
-CHANNELS=@channel1,@channel2
 ```
 
 ### Optional Settings
