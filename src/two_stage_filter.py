@@ -27,7 +27,6 @@ class DebugInfo:
     web_search_used: bool = False
     fallback_used: bool = False
     stage2_attempts: int = 0
-    stage2_attempts: int = 0
     
     def __post_init__(self):
         if self.sources_found is None:
@@ -87,7 +86,7 @@ class TwoStageFilter:
         """
         ЭТАП 1: Умный выбор источников для проверки
         """
-        logger.info("🔍 ЭТАП 1: Анализируем текст для выбора источников...")
+        logger.info("🔍 STAGE 1: Analyzing text for source selection...")
         
         prompt = f"""
 Ты — ассистент по подготовке к фактчекингу. Изучи сообщение и реши, нужен ли глубокий анализ фактов.
@@ -127,22 +126,20 @@ class TwoStageFilter:
             primary_response = await self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=[{"role": "user", "content": prompt}],
-                max_completion_tokens=600,
+                max_completion_tokens=Config.STAGE1_MAX_TOKENS,
                 temperature=0.1,
                 response_format={"type": "json_object"}
             )
 
             result_text = primary_response.choices[0].message.content.strip()
-            logger.info(f"📋 Ответ этапа 1: {result_text}")
+            logger.info(f"📋 Stage 1 response: {result_text}")
 
             analysis = self._parse_stage1_json(result_text)
             if analysis is None:
-                analysis = self._build_analysis_from_text(result_text, text)
-            if analysis is None:
-                logger.info("♻️ ЭТАП 1: повторяем запрос с укороченной инструкцией")
+                logger.info("♻️ STAGE 1: retrying with shortened prompt")
                 analysis = await self._stage1_retry_prompt(text)
         except Exception as e:
-            logger.error(f"❌ Ошибка этапа 1: {e}")
+            logger.error(f"❌ Stage 1 error: {e}")
             analysis = None
 
         if analysis is None:
@@ -705,101 +702,17 @@ class TwoStageFilter:
         return segments
 
     def _parse_stage1_json(self, payload: str) -> Optional[Dict[str, Any]]:
-        """Пытается распарсить JSON ответа этапа 1, восстанавливая обрезанный текст."""
-
+        """Simple JSON parsing with fallback to None on truncation."""
         if not payload:
             return None
-
-        def try_load(candidate: str) -> Optional[Dict[str, Any]]:
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                return None
-
-        # Первая попытка — как есть
-        parsed = try_load(payload)
-        if parsed is not None:
-            return parsed
-
-        # Попытка добавить закрывающие скобки
-        balanced = payload
-        brace_diff = balanced.count('{') - balanced.count('}')
-        if brace_diff > 0:
-            balanced += '}' * brace_diff
-        bracket_diff = balanced.count('[') - balanced.count(']')
-        if bracket_diff > 0:
-            balanced += ']' * bracket_diff
-
-        parsed = try_load(balanced)
-        if parsed is not None:
-            logger.warning("⚠️ ЭТАП 1: восстановили JSON добавлением закрывающих скобок")
-            return parsed
-
-        # Итеративно обрезаем до последней закрывающей скобки
-        for end in range(len(payload), 0, -1):
-            if payload[end - 1] not in '}])\"':
-                continue
-            candidate = payload[:end]
-            candidate = candidate.rstrip(',')
-            candidate_parsed = try_load(candidate)
-            if candidate_parsed is not None:
-                logger.warning("⚠️ ЭТАП 1: использовали усечённый JSON")
-                return candidate_parsed
-
-        logger.warning(
-            "⚠️ ЭТАП 1: не удалось распарсить JSON. Обрезанный фрагмент: %s",
-            payload[:200]
-        )
-        return None
-
-    def _build_analysis_from_text(self, payload: str, original_text: str) -> Optional[Dict[str, Any]]:
-        """Извлекает информацию из частично обрезанного JSON."""
-
-        if not payload:
+        
+        try:
+            return json.loads(payload)
+        except json.JSONDecodeError as e:
+            logger.warning(f"⚠️ STAGE1: Failed to parse JSON (likely truncated): {str(e)[:100]}")
+            logger.debug(f"Truncated JSON: {payload[:300]}")
             return None
 
-        def capture(field: str) -> str:
-            match = re.search(rf'"{field}"\s*:\s*"([^"]*)"', payload)
-            return match.group(1) if match else ""
-
-        classification = capture("classification") or "other"
-        reasoning = capture("reasoning") or ""
-        skip_reason = capture("skip_reason")
-
-        candidate_pattern = re.compile(
-            r'\{[^\}]*?"name"\s*:\s*"(?P<name>[^"]+)"[^\}]*?"url"\s*:\s*"(?P<url>[^"]+)"'
-            r'[^\}]*?"domain"\s*:\s*"(?P<domain>[^"]+)"[^\}]*?"why"\s*:\s*"(?P<why>[^"]+)"'
-            r'[^\}]*?"priority"\s*:\s*(?P<priority>\d+)',
-            re.S
-        )
-
-        candidates: List[Dict[str, Any]] = []
-        for match in candidate_pattern.finditer(payload):
-            try:
-                candidates.append({
-                    "name": match.group("name"),
-                    "url": match.group("url"),
-                    "domain": match.group("domain"),
-                    "why": match.group("why"),
-                    "priority": int(match.group("priority"))
-                })
-            except Exception:
-                continue
-
-        if not candidates:
-            return None
-
-        analysis = {
-            "needs_fact_check": True,
-            "classification": classification,
-            "reasoning": reasoning or "",
-            "skip_reason": skip_reason,
-            "source_candidates": candidates[:Config.MAX_SOURCE_DOMAINS],
-            "recommended_queries": []
-        }
-
-        logger.warning("⚠️ ЭТАП 1: использовали эвристику для разбора усечённого JSON")
-        return analysis
 
     def _extract_text_from_tool_output(self, output: Any) -> List[str]:
         """Достает читаемый текст из результата выполнения инструмента."""
@@ -875,10 +788,7 @@ class TwoStageFilter:
             )
             result_text = response.choices[0].message.content.strip()
             logger.info(f"📋 Ответ этапа 1 (retry): {result_text}")
-            analysis = self._parse_stage1_json(result_text)
-            if analysis is None:
-                analysis = self._build_analysis_from_text(result_text, text)
-            return analysis
+            return self._parse_stage1_json(result_text)
         except Exception as err:
             logger.error(f"❌ ЭТАП 1 retry завершился ошибкой: {err}")
             return None

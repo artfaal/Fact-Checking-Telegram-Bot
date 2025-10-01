@@ -24,6 +24,10 @@ class Config:
     FACT_CHECK_TIMEOUT = float(os.getenv('FACT_CHECK_TIMEOUT', 45))
     ENABLE_AUTO_SOURCES = os.getenv('ENABLE_AUTO_SOURCES', 'true').lower() == 'true'
     
+    # Token limits
+    STAGE1_MAX_TOKENS = int(os.getenv('STAGE1_MAX_TOKENS', 1500))
+    STAGE2_MAX_TOKENS = int(os.getenv('STAGE2_MAX_TOKENS', 2000))
+    
     # Настройки отладки
     DEBUG_MODE = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
     SHOW_ALL_MESSAGES = os.getenv('SHOW_ALL_MESSAGES', 'false').lower() == 'true'
