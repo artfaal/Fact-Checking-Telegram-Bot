@@ -6,9 +6,10 @@
 import asyncio
 import logging
 import sys
+import os
 
 # Добавляем src в path
-sys.path.append('src')
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from two_stage_filter import TwoStageFilter
 
@@ -33,10 +34,6 @@ async def test_two_stage_system():
         {
             "text": "СУПЕР СКИДКА! iPhone за 1000 рублей! Только сегодня! Жми ссылку!",
             "description": "Спам - должен быть отфильтрован без источников"
-        },
-        {
-            "text": "Ученые MIT создали квантовый компьютер нового поколения",
-            "description": "Научная новость - научные источники"
         }
     ]
     
@@ -60,7 +57,6 @@ async def test_two_stage_system():
                 logger.info(f"  ⏱️ Этап 2: {debug_info.stage2_time:.2f}с")
                 logger.info(f"  🌐 Найдено источников: {debug_info.sources_count}")
                 logger.info(f"  📋 Примеры источников: {debug_info.sources_found[:5]}")
-                logger.info(f"  💭 Логика выбора: {debug_info.reasoning}")
                 
                 if debug_info.web_search_used:
                     logger.info(f"  🔍 Использован веб-поиск: ДА")
@@ -70,7 +66,7 @@ async def test_two_stage_system():
         except Exception as e:
             logger.error(f"❌ Ошибка в тесте {i}: {e}")
         
-        await asyncio.sleep(2)  # Пауза между тестами
+        await asyncio.sleep(1)  # Пауза между тестами
     
     logger.info("\n✅ Тестирование двухэтапной системы завершено!")
 

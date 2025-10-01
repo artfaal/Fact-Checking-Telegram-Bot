@@ -44,13 +44,33 @@ class DebugMessageProcessor:
             logger.info(f"📭 Пропускаем сообщение без текста из {channel_name}")
             return
         
-        logger.info(f"📨 Обрабатываем сообщение из {channel_name}: {text_content[:100]}...")
+        # Подробное логирование сообщения
+        logger.info(f"📨 Обрабатываем сообщение из {channel_name}")
+        logger.info(f"📝 Полный текст: {text_content}")
+        logger.info(f"📊 Длина: {len(text_content)} символов")
+        logger.info(f"🔤 Превью: {text_content[:150]}...")
         
         try:
             # Двухэтапный анализ
+            logger.info(f"🔄 Начинаем двухэтапный анализ...")
             category, gpt_comment, debug_info = await self.two_stage_filter.analyze_message(
                 text_content, channel_name
             )
+            
+            # Логируем результат анализа
+            logger.info(f"✅ Анализ завершен:")
+            logger.info(f"  📂 Категория: {category}")
+            logger.info(f"  💬 Комментарий: {gpt_comment}")
+            
+            if debug_info:
+                logger.info(f"  ⏱️ Время этапа 1: {debug_info.stage1_time:.2f}с")
+                logger.info(f"  ⏱️ Время этапа 2: {debug_info.stage2_time:.2f}с")
+                logger.info(f"  🌐 Источников найдено: {debug_info.sources_count}")
+                logger.info(f"  💭 Логика: {debug_info.reasoning}")
+                if debug_info.fallback_used:
+                    logger.info(f"  🔄 Использован fallback: ДА")
+                if debug_info.web_search_used:
+                    logger.info(f"  🔍 Веб-поиск: ДА")
             
             # Отправляем сообщение с отладочной информацией
             if Config.SHOW_ALL_MESSAGES:

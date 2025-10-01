@@ -5,6 +5,7 @@ Fact-Checking Bot v2.0 - Двухэтапная система с отладко
 
 import asyncio
 import logging
+import os
 import signal
 import sys
 from pyrogram import Client, filters
@@ -14,12 +15,15 @@ from pyrogram.types import Message
 sys.path.append('src')
 from config import Config
 from debug_processor import DebugMessageProcessor
+from command_handler import CommandHandler
 
+# Настройка логирования
+os.makedirs('logs', exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('fact_checker_v2.log'),
+        logging.FileHandler('logs/fact_checker.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -36,6 +40,7 @@ class FactCheckingAppV2:
         )
         self.channels = Config.get_channels()
         self.processor = DebugMessageProcessor()
+        self.command_handler = CommandHandler()
         self.channel_ids = {}
         self.running = False
 
@@ -60,11 +65,21 @@ class FactCheckingAppV2:
             if not self.channel_ids:
                 raise ValueError("Не удалось подключиться ни к одному каналу")
             
-            # Настраиваем обработчик сообщений
+            # Настраиваем обработчик сообщений из каналов
             @self.bot.on_message(filters.chat(list(self.channel_ids.keys())))
-            async def handle_message(client, message: Message):
+            async def handle_channel_message(client, message: Message):
                 channel_name = self.channel_ids.get(message.chat.id, "Unknown")
                 await self.processor.process_message(message, channel_name)
+            
+            # Настраиваем обработчик команд /check
+            @self.bot.on_message(filters.command(["check"]) & filters.private)
+            async def handle_check_command(client, message: Message):
+                await self.command_handler.handle_check_command(client, message)
+            
+            # Настраиваем обработчик команды /help
+            @self.bot.on_message(filters.command(["help", "start"]) & filters.private)  
+            async def handle_help_command(client, message: Message):
+                await self.command_handler.handle_help_command(client, message)
             
             # Отправляем уведомление о запуске
             await self.send_startup_notification()
@@ -109,7 +124,10 @@ class FactCheckingAppV2:
                      f"• Автопоиск официальных сайтов компаний\n"
                      f"• Двухэтапная проверка для точности\n"
                      f"• Подробная отладочная информация\n\n"
-                     f"✅ **Готов к работе!**"
+                     f"✅ **Готов к работе!**\n\n"
+                     f"🔧 **Ручная проверка:**\n"
+                     f"Отправьте мне `/check ваш текст` для анализа\n"
+                     f"Используйте `/help` для справки"
             )
             logger.info("📤 Уведомление о запуске v2.0 отправлено")
         except Exception as e:

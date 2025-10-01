@@ -193,16 +193,19 @@ class TwoStageFilter:
 """
 
         try:
-            # Используем веб-поиск с выбранными источниками
-            response = await self.client.responses.create(
-                model=Config.GPT_MODEL if self.gpt5_available else "gpt-4o",
-                tools=[{
-                    "type": "web_search",
-                    "filters": {
-                        "allowed_domains": sources
-                    }
-                }],
-                input=prompt
+            # Используем веб-поиск с выбранными источниками с таймаутом
+            response = await asyncio.wait_for(
+                self.client.responses.create(
+                    model=Config.GPT_MODEL if self.gpt5_available else "gpt-4o",
+                    tools=[{
+                        "type": "web_search",
+                        "filters": {
+                            "allowed_domains": sources
+                        }
+                    }],
+                    input=prompt
+                ),
+                timeout=60.0  # 60 секунд таймаут
             )
             
             if debug:
@@ -238,6 +241,12 @@ class TwoStageFilter:
                     debug.fallback_used = True
                 return await self._fallback_check(text, debug)
             
+        except asyncio.TimeoutError:
+            logger.warning("⏰ Таймаут OpenAI API, используем fallback")
+            if debug:
+                debug.fallback_used = True
+                debug.reasoning += " (timeout)"
+            return await self._fallback_check(text, debug)
         except Exception as e:
             logger.error(f"❌ Ошибка этапа 2: {e}")
             if "gpt-5" in str(e) and self.gpt5_available:
