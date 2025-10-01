@@ -38,10 +38,19 @@ TELEGRAM_BOT_TOKEN=your_bot_token
 # OpenAI API key
 OPENAI_API_KEY=your_openai_key
 
-# Optional settings
-DEBUG_MODE=false
-SEND_DEBUG_INFO=false
+# Optional tuning
+GPT_MODEL=gpt-5
+FACT_CHECK_MODEL=gpt-4o
+WEB_SEARCH_EFFORT=medium
+MAX_SOURCE_DOMAINS=20
+STAGE2_INITIAL_DOMAIN_LIMIT=8
+STAGE2_RETRY_DOMAIN_LIMIT=5
+FACT_CHECK_TIMEOUT=45
+STAGE1_MAX_TOKENS=1500
+STAGE2_MAX_TOKENS=2000
 ```
+
+Все параметры имеют значения по умолчанию и настраиваются при необходимости. Отладочные логи включены всегда, поэтому переменная `DEBUG_MODE` отдельно не требуется.
 
 ### 3. Запуск через Docker (рекомендуется)
 
