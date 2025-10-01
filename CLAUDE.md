@@ -98,25 +98,38 @@ CHANNELS=@channel1,@channel2
 
 ### Optional Settings
 ```bash
-GPT_MODEL=gpt-5-turbo-2024-11-20  # OpenAI model
-FACT_CHECK_MODE=two_stage          # Filtering mode
-DEBUG_MODE=true                    # Enable debug info
-SHOW_ALL_MESSAGES=true            # Show hidden messages too
-SEND_DEBUG_INFO=true              # Send debug to chat
-MAX_SOURCE_DOMAINS=20             # Max domains for fact-checking
-STAGE2_INITIAL_DOMAIN_LIMIT=8     # Domains in first stage-2 attempt
-STAGE2_RETRY_DOMAIN_LIMIT=5       # Domains in retry attempt
-FACT_CHECK_TIMEOUT=45             # Timeout per attempt (seconds)
-FACT_CHECK_MODEL=gpt-4o                # Responses model for stage 2 web search
-WEB_SEARCH_EFFORT=medium          # Reasoning effort for web search (low/medium/high)
+GPT_MODEL=gpt-5                    # OpenAI model for Stage 1
+FACT_CHECK_MODEL=gpt-4o           # OpenAI model for Stage 2 web search
+FACT_CHECK_MODE=smart             # Filtering mode (smart/strict/permissive)
+DEBUG_MODE=true                   # Enable debug info
+SHOW_ALL_MESSAGES=true           # Show hidden messages too
+SEND_DEBUG_INFO=true             # Send debug to chat
+MAX_SOURCE_DOMAINS=20            # Max domains for fact-checking
+STAGE2_INITIAL_DOMAIN_LIMIT=8    # Domains in first stage-2 attempt
+STAGE2_RETRY_DOMAIN_LIMIT=5      # Domains in retry attempt
+FACT_CHECK_TIMEOUT=45            # Timeout per attempt (seconds)
+WEB_SEARCH_EFFORT=medium         # Reasoning effort for web search (low/medium/high)
+STAGE1_MAX_TOKENS=1500           # Max tokens for Stage 1 responses
+STAGE2_MAX_TOKENS=2000           # Max tokens for Stage 2 responses
+ENABLE_AUTO_SOURCES=true         # Enable automatic source selection
 ```
 
 ## Core Components
 
 ### Two-Stage Filtering (`two_stage_filter.py`)
 1. **Stage 1**: Analyzes content to select appropriate fact-checking sources
-2. **Stage 2**: Performs web search on selected domains for fact verification
+2. **Stage 2**: Performs strict fact verification with new JSON schema:
+   - `verification_status`: confirmed, partially_confirmed, contradictory, unconfirmed
+   - `confidence_score`: 0-100 numeric score
+   - `detailed_findings`: Specific evidence found/not found
+   - `contradictions`: Any contradictions between message and sources
 3. **Fallback**: Quick classification if web search times out
+
+### Verification Criteria
+- **confirmed** (90-100%): Direct quotes/official statements support ALL claims
+- **partially_confirmed** (60-89%): Some claims supported, others unclear
+- **contradictory** (30-59%): Some claims directly contradicted by sources  
+- **unconfirmed** (0-29%): No supporting evidence found for key claims
 
 ### Source Management (`sources_config.py`)
 - Categorized domains: general_news, technology, finance, science
@@ -214,5 +227,42 @@ docker-compose up -d --build
 - Read-only mounts for configuration
 - No hardcoded API keys in code
 - .gitignore excludes sensitive files
+- **Git history cleaned**: All API keys/tokens removed from git history using BFG
+- **Pre-commit hooks**: Gitleaks integration prevents future secret leaks
+- **JSON validation**: Strict validation prevents injection attacks
 
-This documentation should provide context for future development and maintenance of the fact-checking bot system.
+## Testing & Development Commands
+
+### Quick Start for Development
+```bash
+# Setup
+source venv/bin/activate
+python tests/test_config.py        # Validate configuration
+python tests/test_check_command.py # Test bot commands  
+python tests/test_two_stage.py     # Test filtering system
+python run_tests.py               # Run all tests
+
+# Local development
+python main.py                    # Start bot locally
+
+# Docker testing
+docker-compose up -d              # Start in Docker
+docker-compose logs -f            # Monitor logs
+```
+
+### Security Testing
+```bash
+# Check for secrets in git history
+gitleaks detect --source . --verbose --redact
+
+# Test pre-commit hook
+git add . && git commit -m "test"  # Should run gitleaks automatically
+```
+
+### Fact-Checking Accuracy Testing
+The system now handles contradictory statements correctly:
+- Test with contradictory Crystal Dynamics examples
+- Confidence scores properly differentiate similar but conflicting claims
+- Verification status provides clear classification
+
+This documentation provides comprehensive context for future development and maintenance of the fact-checking bot system.
