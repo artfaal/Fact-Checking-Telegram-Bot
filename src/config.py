@@ -13,6 +13,12 @@ class Config:
     
     TARGET_CHAT_ID = int(os.getenv('TARGET_CHAT_ID', 0))
     
+    # Настройки фактчекинга
+    GPT_MODEL = os.getenv('GPT_MODEL', 'gpt-5')
+    FACT_CHECK_MODE = os.getenv('FACT_CHECK_MODE', 'smart')  # smart, strict, permissive
+    MAX_SOURCE_DOMAINS = int(os.getenv('MAX_SOURCE_DOMAINS', 20))
+    ENABLE_AUTO_SOURCES = os.getenv('ENABLE_AUTO_SOURCES', 'true').lower() == 'true'
+    
     @staticmethod
     def get_channels() -> List[str]:
         channels_str = os.getenv('CHANNELS', '')
