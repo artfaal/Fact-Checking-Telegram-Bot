@@ -1,0 +1,146 @@
+{
+  "general_news": {
+    "description": "Общие новостные источники",
+    "domains": [
+      "reuters.com",
+      "bbc.com",
+      "cnn.com",
+      "tass.ru",
+      "ria.ru",
+      "kommersant.ru",
+      "vedomosti.ru",
+      "gazeta.ru",
+      "rbc.ru",
+      "interfax.ru"
+    ]
+  },
+  "technology": {
+    "description": "Технологические компании и их официальные источники",
+    "domains": [
+      "techcrunch.com",
+      "theverge.com",
+      "arstechnica.com",
+      "wired.com",
+      "venturebeat.com",
+      "blog.discord.com",
+      "discord.com",
+      "blog.google.com",
+      "microsoft.com",
+      "apple.com",
+      "meta.com",
+      "openai.com",
+      "github.blog",
+      "stackoverflow.blog",
+      "reddit.com",
+      "twitter.com",
+      "x.com"
+    ]
+  },
+  "finance": {
+    "description": "Финансовые источники",
+    "domains": [
+      "bloomberg.com",
+      "reuters.com",
+      "wsj.com",
+      "ft.com",
+      "marketwatch.com",
+      "investing.com",
+      "yahoo.com",
+      "cbr.ru",
+      "moex.com"
+    ]
+  },
+  "science": {
+    "description": "Научные источники",
+    "domains": [
+      "nature.com",
+      "science.org",
+      "pubmed.ncbi.nlm.nih.gov",
+      "arxiv.org",
+      "who.int",
+      "cdc.gov",
+      "fda.gov",
+      "nih.gov"
+    ]
+  },
+  "entertainment": {
+    "description": "Развлечения и медиа",
+    "domains": [
+      "variety.com",
+      "hollywoodreporter.com",
+      "deadline.com",
+      "entertainment.com",
+      "imdb.com",
+      "rottentomatoes.com"
+    ]
+  },
+  "company_specifics": {
+    "description": "Автоматически определяемые официальные сайты",
+    "auto_detect": true,
+    "patterns": {
+      "discord": [
+        "blog.discord.com",
+        "discord.com",
+        "support.discord.com"
+      ],
+      "google": [
+        "blog.google.com",
+        "support.google.com",
+        "developers.google.com"
+      ],
+      "microsoft": [
+        "microsoft.com",
+        "techcommunity.microsoft.com",
+        "devblogs.microsoft.com"
+      ],
+      "apple": [
+        "apple.com",
+        "developer.apple.com",
+        "support.apple.com"
+      ],
+      "meta": [
+        "meta.com",
+        "about.fb.com",
+        "blog.whatsapp.com"
+      ],
+      "openai": [
+        "openai.com",
+        "help.openai.com"
+      ],
+      "github": [
+        "github.blog",
+        "github.com",
+        "docs.github.com"
+      ],
+      "reddit": [
+        "reddit.com",
+        "redditinc.com"
+      ],
+      "twitter": [
+        "blog.twitter.com",
+        "help.twitter.com",
+        "x.com"
+      ],
+      "telegram": [
+        "telegram.org",
+        "core.telegram.org"
+      ],
+      "youtube": [
+        "youtube.com",
+        "creators.youtube.com"
+      ],
+      "netflix": [
+        "about.netflix.com",
+        "media.netflix.com"
+      ],
+      "amazon": [
+        "press.aboutamazon.com",
+        "aws.amazon.com"
+      ],
+      "tesla": [
+        "tesla.com",
+        "ir.tesla.com"
+      ]
+    }
+  }
+}
