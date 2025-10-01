@@ -19,6 +19,11 @@ class Config:
     MAX_SOURCE_DOMAINS = int(os.getenv('MAX_SOURCE_DOMAINS', 20))
     ENABLE_AUTO_SOURCES = os.getenv('ENABLE_AUTO_SOURCES', 'true').lower() == 'true'
     
+    # Настройки отладки
+    DEBUG_MODE = os.getenv('DEBUG_MODE', 'false').lower() == 'true'
+    SHOW_ALL_MESSAGES = os.getenv('SHOW_ALL_MESSAGES', 'false').lower() == 'true'
+    SEND_DEBUG_INFO = os.getenv('SEND_DEBUG_INFO', 'false').lower() == 'true'
+    
     @staticmethod
     def get_channels() -> List[str]:
         channels_str = os.getenv('CHANNELS', '')

@@ -1,0 +1,34 @@
+2025-10-01 18:10:54,484 - __main__ - INFO - ✅ Конфигурация валидна
+2025-10-01 18:10:54,563 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-10-01 18:10:54,563 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 18:10:54,618 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 18:10:56,843 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-10-01 18:10:56,844 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 18:10:56,847 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 18:10:56,900 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 18:10:56,900 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 18:10:57,147 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 18:10:57,147 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 18:10:57,147 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 18:10:57,147 - pyrogram.session.session - INFO - Session started
+2025-10-01 18:10:57,148 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 18:10:57,355 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 18:10:57,355 - telegram_client - INFO - Telegram бот запущен
+2025-10-01 18:10:57,355 - debug_processor - INFO - 🔧 Debug процессор сообщений запущен
+2025-10-01 18:10:57,366 - pyrogram.session.auth - INFO - Start creating a new auth key on DC2
+2025-10-01 18:10:57,367 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 18:10:57,421 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 18:10:58,697 - pyrogram.session.auth - INFO - Done auth key exchange: DhGenOk
+2025-10-01 18:10:58,697 - pyrogram.connection.connection - INFO - Disconnected
+2025-10-01 18:10:58,701 - pyrogram.connection.connection - INFO - Connecting...
+2025-10-01 18:10:58,756 - pyrogram.connection.connection - INFO - Connected! Production DC2 - IPv4
+2025-10-01 18:10:58,756 - pyrogram.session.session - INFO - NetworkTask started
+2025-10-01 18:10:59,142 - pyrogram.session.session - INFO - Session initialized: Layer 158
+2025-10-01 18:10:59,142 - pyrogram.session.session - INFO - Device: CPython 3.13.7 - Pyrogram 2.0.106
+2025-10-01 18:10:59,142 - pyrogram.session.session - INFO - System: Darwin 25.0.0 (en)
+2025-10-01 18:10:59,142 - pyrogram.session.session - INFO - Session started
+2025-10-01 18:10:59,144 - pyrogram.session.session - INFO - PingTask started
+2025-10-01 18:10:59,692 - pyrogram.dispatcher - INFO - Started 16 HandlerTasks
+2025-10-01 18:10:59,968 - __main__ - INFO - ✅ Подключен к каналу: @dvachannel (ID: -1001009232144)
+2025-10-01 18:11:00,257 - __main__ - INFO - 📤 Уведомление о запуске v2.0 отправлено
+2025-10-01 18:11:00,257 - __main__ - INFO - 🔄 Fact-checking bot v2.0 запущен. Нажмите Ctrl+C для остановки
