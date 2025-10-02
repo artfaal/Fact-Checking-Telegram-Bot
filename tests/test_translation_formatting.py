@@ -204,6 +204,86 @@ async def test_integration_mock_fact_check():
     finally:
         Config.TRANSLATE_TO_RUSSIAN = original_translate
 
+async def test_comment_full_translation():
+    """Тест полного перевода комментария без английских фраз"""
+    logger.info("🌐 Тестируем полный перевод комментария...")
+    
+    # Временно включаем перевод
+    original_translate = Config.TRANSLATE_TO_RUSSIAN
+    Config.TRANSLATE_TO_RUSSIAN = True
+    
+    try:
+        filter_system = TwoStageFilter()
+        
+        # Мокаем _run_stage2_attempt, чтобы получить предсказуемый результат
+        with patch.object(filter_system, '_run_stage2_attempt') as mock_stage2:
+            # Создаем debug_info с английскими полями (до перевода)
+            debug_info = DebugInfo()
+            debug_info.confidence_score = 15
+            debug_info.verification_status = "unconfirmed"
+            debug_info.detailed_findings = "No evidence found for the medical adhesive Bone-02"
+            debug_info.contradictions = "No contradictions found"
+            debug_info.missing_evidence = "All claims about rapid bone healing lack supporting evidence"
+            
+            # Мокаем перевод для предсказуемого результата
+            with patch.object(filter_system, '_translate_text') as mock_translate:
+                mock_translate.side_effect = [
+                    "Доказательства медицинского клея Bone-02 не найдены",
+                    "Противоречий не обнаружено",
+                    "Все утверждения о быстром заживлении костей не имеют подтверждающих доказательств"
+                ]
+                
+                # Имитируем вызов stage2
+                mock_stage2.return_value = ("новости", "test_comment")
+                
+                # Вызываем analyze_message
+                category, comment, result_debug = await filter_system.analyze_message(
+                    "Bone-02 medical adhesive test", "Test"
+                )
+                
+                # Проверяем что все поля переведены
+                logger.info(f"📝 Результат комментария: {comment}")
+                logger.info(f"📋 Детальные выводы: {result_debug.detailed_findings}")
+                logger.info(f"❓ Отсутствующие доказательства: {result_debug.missing_evidence}")
+                
+                # Проверяем отсутствие английских фраз
+                fields_to_check = [
+                    result_debug.detailed_findings,
+                    result_debug.contradictions, 
+                    result_debug.missing_evidence
+                ]
+                
+                english_keywords = [
+                    "evidence", "found", "claims", "bone", "healing", "medical", 
+                    "adhesive", "rapid", "supporting", "contradictions"
+                ]
+                
+                for field in fields_to_check:
+                    if field:  # Если поле не пустое
+                        for keyword in english_keywords:
+                            if keyword.lower() in field.lower():
+                                logger.error(f"❌ Найдено английское слово '{keyword}' в поле: {field}")
+                                assert False, f"Поле содержит английское слово '{keyword}': {field}"
+                
+                logger.info("✅ Все поля полностью переведены на русский язык")
+                
+                # Дополнительная проверка комментария через новый метод
+                translated_comment = filter_system._build_translated_comment(
+                    "unconfirmed", 15, result_debug
+                )
+                logger.info(f"📝 Переведенный комментарий: {translated_comment}")
+                
+                # Проверяем что в комментарии нет английских слов
+                for keyword in english_keywords:
+                    if keyword.lower() in translated_comment.lower():
+                        logger.error(f"❌ Найдено английское слово '{keyword}' в комментарии: {translated_comment}")
+                        assert False, f"Комментарий содержит английское слово '{keyword}': {translated_comment}"
+                
+                logger.info("✅ Комментарий полностью на русском языке")
+                
+    finally:
+        Config.TRANSLATE_TO_RUSSIAN = original_translate
+
 async def run_all_tests():
     """Запуск всех тестов"""
     logger.info("🚀 Запускаем тесты перевода и форматирования...")
@@ -212,7 +292,8 @@ async def run_all_tests():
         test_translation_functionality,
         test_formatting_with_all_fields,
         test_formatting_with_missing_fields,
-        test_integration_mock_fact_check
+        test_integration_mock_fact_check,
+        test_comment_full_translation
     ]
     
     for test_func in tests:

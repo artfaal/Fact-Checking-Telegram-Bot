@@ -496,38 +496,10 @@ Verification criteria:
             confidence_score = 100 - confidence_score
             logger.info(f"🔄 Inverted confidence_score for contradictory status: {confidence_score}%")
         
-        # Build comment based on verification status and confidence
+        # Extract fields from API response
         detailed_findings = result.get("detailed_findings", "")
         contradictions = result.get("contradictions", "")
         missing_evidence = result.get("missing_evidence", "")
-        
-        if verification_status == "confirmed" and confidence_score >= 90:
-            comment = "Достоверно"
-            if detailed_findings:
-                comment += f" - {detailed_findings}"
-        elif verification_status == "partially_confirmed" and confidence_score >= 60:
-            comment = "Частично подтверждено"
-            if detailed_findings:
-                comment += f" - {detailed_findings}"
-            elif contradictions:
-                comment += f" - некоторые детали не совпадают: {contradictions}"
-        elif verification_status == "contradictory":
-            comment = "Противоречит источникам"
-            if contradictions:
-                comment += f" - {contradictions}"
-            elif detailed_findings:
-                comment += f" - {detailed_findings}"
-        elif verification_status == "unconfirmed" or confidence_score < 30:
-            comment = "Не подтверждено"
-            if missing_evidence:
-                comment += f" - {missing_evidence}"
-            elif detailed_findings:
-                comment += f" - {detailed_findings}"
-        else:
-            # Fallback for edge cases
-            comment = "Требует дополнительной проверки"
-            if detailed_findings:
-                comment += f" - {detailed_findings}"
         
         # Save all fields to debug_info
         if debug:
@@ -539,6 +511,9 @@ Verification criteria:
         
         # Stage 2.5: Translate comment fields to Russian if enabled
         await self._translate_comment_fields(debug)
+        
+        # Build comment from translated fields
+        comment = self._build_translated_comment(verification_status, confidence_score, debug)
         
         return category, comment
 
@@ -597,6 +572,45 @@ Verification criteria:
         except Exception as e:
             logger.warning(f"⚠️ Ошибка перевода: {e}")
             return text  # Возвращаем оригинал при ошибке
+
+    def _build_translated_comment(self, verification_status: str, confidence_score: int, debug: Optional[DebugInfo]) -> str:
+        """Формирует комментарий на основе уже переведенных полей из debug_info"""
+        
+        # Получаем переведенные поля из debug_info (если есть)
+        detailed_findings = debug.detailed_findings if debug else ""
+        contradictions = debug.contradictions if debug else ""
+        missing_evidence = debug.missing_evidence if debug else ""
+        
+        # Формируем комментарий на основе verification_status
+        if verification_status == "confirmed" and confidence_score >= 90:
+            comment = "Достоверно"
+            if detailed_findings:
+                comment += f" - {detailed_findings}"
+        elif verification_status == "partially_confirmed" and confidence_score >= 60:
+            comment = "Частично подтверждено"
+            if detailed_findings:
+                comment += f" - {detailed_findings}"
+            elif contradictions:
+                comment += f" - некоторые детали не совпадают: {contradictions}"
+        elif verification_status == "contradictory":
+            comment = "Противоречит источникам"
+            if contradictions:
+                comment += f" - {contradictions}"
+            elif detailed_findings:
+                comment += f" - {detailed_findings}"
+        elif verification_status == "unconfirmed" or confidence_score < 30:
+            comment = "Не подтверждено"
+            if missing_evidence:
+                comment += f" - {missing_evidence}"
+            elif detailed_findings:
+                comment += f" - {detailed_findings}"
+        else:
+            # Fallback for edge cases
+            comment = "Требует дополнительной проверки"
+            if detailed_findings:
+                comment += f" - {detailed_findings}"
+        
+        return comment
 
     def _build_stage2_attempts(self, sources: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
         """Формирует последовательность попыток для этапа 2 с разными лимитами доменов."""
