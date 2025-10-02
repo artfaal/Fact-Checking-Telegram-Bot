@@ -27,6 +27,9 @@ class Config:
     # Настройки отладки - всегда включены для логов
     DEBUG_MODE = True  # Всегда включено для полных логов
     
+    # Настройки перевода
+    TRANSLATE_TO_RUSSIAN = os.getenv('TRANSLATE_TO_RUSSIAN', 'true').lower() == 'true'
+    
     @classmethod
     def validate(cls):
         errors = []

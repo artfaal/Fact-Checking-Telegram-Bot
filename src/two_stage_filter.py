@@ -30,6 +30,9 @@ class DebugInfo:
     stage2_attempts: int = 0
     confidence_score: int = 0
     verification_status: str = ""
+    detailed_findings: str = ""
+    contradictions: str = ""
+    missing_evidence: str = ""
     
     def __post_init__(self):
         if self.sources_found is None:
@@ -526,12 +529,74 @@ Verification criteria:
             if detailed_findings:
                 comment += f" - {detailed_findings}"
         
-        # Save confidence_score and verification_status to debug_info
+        # Save all fields to debug_info
         if debug:
             debug.confidence_score = confidence_score
             debug.verification_status = verification_status
+            debug.detailed_findings = detailed_findings
+            debug.contradictions = contradictions
+            debug.missing_evidence = missing_evidence
+        
+        # Stage 2.5: Translate comment fields to Russian if enabled
+        await self._translate_comment_fields(debug)
         
         return category, comment
+
+    async def _translate_comment_fields(self, debug: Optional[DebugInfo]) -> None:
+        """Переводит текстовые поля комментария на русский язык (Stage 2.5)"""
+        if not debug or not Config.TRANSLATE_TO_RUSSIAN:
+            return
+        
+        logger.info("🌐 STAGE 2.5: Переводим комментарии на русский...")
+        
+        # Переводим все доступные поля
+        fields_to_translate = [
+            ('detailed_findings', 'детальные выводы'),
+            ('contradictions', 'противоречия'),
+            ('missing_evidence', 'отсутствующие доказательства')
+        ]
+        
+        for field_name, field_description in fields_to_translate:
+            field_value = getattr(debug, field_name, "")
+            if field_value and field_value.strip():
+                try:
+                    translated_text = await self._translate_text(field_value, field_description)
+                    setattr(debug, field_name, translated_text)
+                    logger.info(f"✅ Переведено поле {field_name}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Ошибка перевода поля {field_name}: {e}")
+                    # Оставляем оригинальный текст при ошибке
+
+    async def _translate_text(self, text: str, field_description: str = "текст") -> str:
+        """Переводит текст на русский язык с сохранением технической точности"""
+        try:
+            response = await self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{
+                    "role": "user", 
+                    "content": f"""Переведи этот {field_description} fact-checking системы на русский язык. 
+                    
+ВАЖНО:
+- Сохрани всю техническую точность
+- Переведи названия компаний и источников на русский, если это общепринято
+- Сохрани специфические термины и даты
+- Используй профессиональный тон
+
+Исходный текст:
+{text}
+
+Переведенный текст:"""
+                }],
+                max_completion_tokens=500,
+                temperature=0.1,
+                timeout=10
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Ошибка перевода: {e}")
+            return text  # Возвращаем оригинал при ошибке
 
     def _build_stage2_attempts(self, sources: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
         """Формирует последовательность попыток для этапа 2 с разными лимитами доменов."""

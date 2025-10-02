@@ -231,7 +231,29 @@ Discord объявил новую функцию ИИ-модерации гол�
         if result_text:
             result += f"🤖 **Комментарий:** {result_text}\n"
         
-        # Отладочная информация теперь только в логах
+        # Добавляем детальные поля если они есть
+        if debug_info:
+            confidence_score = debug_info.confidence_score if debug_info.confidence_score else 0
+            if confidence_score > 0:
+                confidence_emoji = self._get_confidence_emoji(confidence_score)
+                result += f"\n{confidence_emoji} **Доверие:** {confidence_score}%\n"
+            
+            # Добавляем детальные выводы отдельным полем
+            if debug_info.detailed_findings and debug_info.detailed_findings.strip():
+                result += f"\n📋 **Детальные выводы:** {debug_info.detailed_findings}\n"
+            
+            # Добавляем противоречия отдельным полем
+            if debug_info.contradictions and debug_info.contradictions.strip():
+                result += f"\n⚠️ **Противоречия:** {debug_info.contradictions}\n"
+            
+            # Добавляем отсутствующие доказательства отдельным полем
+            if debug_info.missing_evidence and debug_info.missing_evidence.strip():
+                result += f"\n❓ **Отсутствующие доказательства:** {debug_info.missing_evidence}\n"
+            
+            # Добавляем источники
+            if debug_info.sources_found:
+                sources_text = ", ".join(debug_info.sources_found)
+                result += f"\n🌐 **Источники:** {sources_text}\n"
         
         result += f"\n💡 **Подсказка:** Отправьте любое сообщение для проверки фактов"
         
@@ -262,6 +284,18 @@ Discord объявил новую функцию ИИ-модерации гол�
         # Основной формат для фактчекинга
         result = f"{confidence_emoji} Доверие: {confidence_score}%\n"
         result += f"🤖 Комментарий: {comment}\n"
+        
+        # Добавляем детальные выводы отдельным полем
+        if debug_info and debug_info.detailed_findings and debug_info.detailed_findings.strip():
+            result += f"\n📋 Детальные выводы: {debug_info.detailed_findings}\n"
+        
+        # Добавляем противоречия отдельным полем
+        if debug_info and debug_info.contradictions and debug_info.contradictions.strip():
+            result += f"\n⚠️ Противоречия: {debug_info.contradictions}\n"
+        
+        # Добавляем отсутствующие доказательства отдельным полем
+        if debug_info and debug_info.missing_evidence and debug_info.missing_evidence.strip():
+            result += f"\n❓ Отсутствующие доказательства: {debug_info.missing_evidence}\n"
         
         # Добавляем источники (полный список без сокращений)
         if debug_info and debug_info.sources_found:
