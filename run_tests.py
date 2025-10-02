@@ -34,8 +34,8 @@ def main():
     
     tests = [
         'test_config',
-        'test_check_command', 
-        'test_two_stage'
+        'test_two_stage',
+        'test_translation_formatting'
     ]
     
     results = {}

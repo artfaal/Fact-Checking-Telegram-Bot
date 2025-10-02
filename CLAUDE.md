@@ -69,8 +69,8 @@ docker-compose down
 
 ### Test Files
 - `test_config.py`: Configuration validation
-- `test_check_command.py`: Manual /check command testing
 - `test_two_stage.py`: Two-stage filtering system testing
+- `test_translation_formatting.py`: Russian translation and field formatting testing
 
 ### Mock Testing
 All tests use mock objects to avoid external API calls during testing:
@@ -132,9 +132,9 @@ ENABLE_AUTO_SOURCES=true         # Enable automatic source selection
 - Automatic source selection based on content analysis
 
 ### Command System (`command_handler.py`)
-- `/check <message>`: Manual fact-checking with full two-stage analysis
 - `/help`: Comprehensive usage instructions
-- Same analysis pipeline as automatic monitoring
+- `/start`: Begin interaction with bot
+- Automatic fact-checking for all text messages and media with captions
 
 ## Debugging and Logging
 

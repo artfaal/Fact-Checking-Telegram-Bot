@@ -16,62 +16,6 @@ class CommandHandler:
         # Используем двухэтапную систему фактчекинга
         self.two_stage_filter = TwoStageFilter()
         
-    async def handle_check_command(self, bot, message: Message):
-        """Обработка команды /check"""
-        
-        # Извлекаем текст после команды
-        text_to_check = self._extract_check_text(message.text)
-        
-        if not text_to_check:
-            await bot.send_message(
-                chat_id=message.chat.id,
-                text="❓ **Как использовать:**\n\n"
-                     "`/check ваш текст для проверки`\n\n"
-                     "**Пример:**\n"
-                     "`/check Discord объявил новую функцию ИИ-модерации`\n\n"
-                     "🤖 Я проанализирую текст точно так же, как новость из канала!"
-            )
-            return
-        
-        # Показываем что начали обработку
-        processing_msg = await bot.send_message(
-            chat_id=message.chat.id,
-            text="🔄 **Анализирую ваше сообщение...**\n\n"
-                 f"📝 Текст: {text_to_check[:100]}{'...' if len(text_to_check) > 100 else ''}\n\n"
-                 "⏳ Двухэтапная проверка в процессе..."
-        )
-        
-        try:
-            # Используем двухэтапную систему
-            category, comment, debug_info = await self.two_stage_filter.analyze_message(
-                text_to_check, "Ручная проверка"
-            )
-            
-            # Формируем результат
-            result_message = await self._format_check_result(
-                text_to_check, category, comment, debug_info
-            )
-            
-            # Обновляем сообщение с результатом
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=processing_msg.id,
-                text=result_message
-            )
-            
-            logger.info(f"✅ Обработана команда /check: {category} | {comment}")
-            
-        except Exception as e:
-            logger.error(f"❌ Ошибка обработки команды /check: {e}")
-            
-            await bot.edit_message_text(
-                chat_id=message.chat.id,
-                message_id=processing_msg.id,
-                text="❌ **Ошибка анализа**\n\n"
-                     f"Произошла ошибка при обработке: {str(e)}\n\n"
-                     "Попробуйте еще раз или обратитесь к администратору."
-            )
-    
     def _extract_text_from_message(self, message: Message) -> str:
         """Извлекает текст из сообщения (text или caption)"""
         if message.text:
@@ -193,71 +137,6 @@ Discord объявил новую функцию ИИ-модерации гол�
             chat_id=message.chat.id,
             text=help_text
         )
-    
-    def _extract_check_text(self, command_text: str) -> Optional[str]:
-        """Извлекает текст для проверки из команды"""
-        if not command_text:
-            return None
-            
-        # Убираем команду /check и лишние пробелы
-        text = command_text.replace('/check', '', 1).strip()
-        
-        # Проверяем что что-то осталось
-        if len(text) < 5:
-            return None
-            
-        return text
-    
-    async def _format_check_result(self, original_text: str, category: str, 
-                                 comment: str, debug_info: Optional[DebugInfo]) -> str:
-        """Форматирует результат проверки для отправки"""
-        
-        # Определяем эмодзи и статус
-        if category == "скрыто":
-            status_emoji = "🗑️"
-            status_text = f"**СКРЫТО**"
-            result_text = comment
-        else:
-            emoji_map = {"новости": "📰", "развлечения": "🎬", "другое": "📄"}
-            status_emoji = emoji_map.get(category, "📄")
-            status_text = f"**{category.upper()}**"
-            result_text = comment if comment else "Информация обработана"
-        
-        # Основной результат
-        result = f"✅ **Анализ завершен**\n\n"
-        result += f"📝 **Ваше сообщение:**\n{original_text}\n\n"
-        result += f"{status_emoji} **Результат:** {status_text}\n"
-        
-        if result_text:
-            result += f"🤖 **Комментарий:** {result_text}\n"
-        
-        # Добавляем детальные поля если они есть
-        if debug_info:
-            confidence_score = debug_info.confidence_score if debug_info.confidence_score else 0
-            if confidence_score > 0:
-                confidence_emoji = self._get_confidence_emoji(confidence_score)
-                result += f"\n{confidence_emoji} **Доверие:** {confidence_score}%\n"
-            
-            # Добавляем детальные выводы отдельным полем
-            if debug_info.detailed_findings and debug_info.detailed_findings.strip():
-                result += f"\n📋 **Детальные выводы:** {debug_info.detailed_findings}\n"
-            
-            # Добавляем противоречия отдельным полем
-            if debug_info.contradictions and debug_info.contradictions.strip():
-                result += f"\n⚠️ **Противоречия:** {debug_info.contradictions}\n"
-            
-            # Добавляем отсутствующие доказательства отдельным полем
-            if debug_info.missing_evidence and debug_info.missing_evidence.strip():
-                result += f"\n❓ **Отсутствующие доказательства:** {debug_info.missing_evidence}\n"
-            
-            # Добавляем источники
-            if debug_info.sources_found:
-                sources_text = ", ".join(debug_info.sources_found)
-                result += f"\n🌐 **Источники:** {sources_text}\n"
-        
-        result += f"\n💡 **Подсказка:** Отправьте любое сообщение для проверки фактов"
-        
-        return result
     
     async def _format_fact_check_result(self, category: str, 
                                      comment: str, debug_info: Optional[DebugInfo]) -> str:
