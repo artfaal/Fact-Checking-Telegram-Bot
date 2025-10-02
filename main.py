@@ -58,6 +58,11 @@ class FactCheckingBot:
             async def handle_text_message(client, message: Message):
                 await self.command_handler.handle_fact_check(client, message)
             
+            # Обработчик медиа сообщений с caption (фото, видео, документы с подписью)
+            @self.bot.on_message((filters.photo | filters.video | filters.document) & filters.private & filters.caption)
+            async def handle_media_message(client, message: Message):
+                await self.command_handler.handle_fact_check(client, message)
+            
             self.running = True
             logger.info("🤖 Fact-checking bot v3.0 запущен. Отправьте любое сообщение для проверки фактов!")
             
