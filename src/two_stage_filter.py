@@ -7,6 +7,7 @@ import asyncio
 import json
 import time
 import re
+from datetime import datetime
 from typing import Any, Dict, Tuple, List, Optional
 from dataclasses import dataclass
 from urllib.parse import urlparse
@@ -90,8 +91,11 @@ class TwoStageFilter:
         """
         logger.info("🔍 STAGE 1: Analyzing text for source selection...")
         
+        current_year = datetime.now().year
         prompt = f"""
 Ты — ассистент по подготовке к фактчекингу. Изучи сообщение и реши, нужен ли глубокий анализ фактов.
+
+ВАЖНО: Сейчас {current_year} год. Используй актуальный год в поисковых запросах.
 
 Сообщение: "{text}"
 
@@ -119,6 +123,7 @@ class TwoStageFilter:
 - Не выдумывай домены; если точного URL нет, дай главную страницу организации.
 - Учитывай международные и локальные источники.
 - Дублирующие сайты не включай.
+- В поисковых запросах используй актуальный {current_year} год вместо устаревших дат.
 - Если проверка не нужна, выставь "needs_fact_check": false и объясни в "skip_reason".
 """
 
@@ -345,7 +350,9 @@ class TwoStageFilter:
         if queries:
             prepared = [q for q in queries[:3] if isinstance(q, str) and q.strip()]
             if prepared:
-                bullet_list = "\n".join([f"• {q.strip()}" for q in prepared])
+                # Обновляем годы в поисковых запросах на актуальный
+                updated_queries = self._update_queries_with_current_year(prepared)
+                bullet_list = "\n".join([f"• {q.strip()}" for q in updated_queries])
                 queries_text = f"Рекомендуемые поисковые запросы:\n{bullet_list}\n\n"
 
         allowed_domains = [
@@ -689,6 +696,25 @@ Verification criteria:
         if domain.startswith("www."):
             domain = domain[4:]
         return domain or None
+
+    def _update_queries_with_current_year(self, queries: List[str]) -> List[str]:
+        """Обновляет поисковые запросы, заменяя устаревшие годы на текущий год."""
+        current_year = datetime.now().year
+        updated_queries = []
+        
+        for query in queries:
+            # Заменяем годы от 2020 до текущего года-1 на текущий год
+            # Примеры: "Крым принадлежность 2023" -> "Крым принадлежность 2025"
+            updated_query = query
+            for old_year in range(2020, current_year):
+                if str(old_year) in query:
+                    updated_query = updated_query.replace(str(old_year), str(current_year))
+                    logger.info(f"🗓️ Обновлен год в запросе: {old_year} -> {current_year}")
+                    break
+            
+            updated_queries.append(updated_query)
+        
+        return updated_queries
 
     def _format_sources_for_prompt(self, sources: List[Dict[str, Any]]) -> str:
         """Форматирует список источников для передачи в модель."""
