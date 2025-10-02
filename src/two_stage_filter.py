@@ -479,6 +479,13 @@ Verification criteria:
         if category == "spam":
             return "скрыто", "Определено как спам"
         
+        # Fix confidence_score logic for contradictory status
+        # If status is contradictory, confidence_score should reflect low trust in the claim
+        if verification_status == "contradictory" and confidence_score > 50:
+            # Invert confidence score - high model confidence in contradiction = low trust in claim
+            confidence_score = 100 - confidence_score
+            logger.info(f"🔄 Inverted confidence_score for contradictory status: {confidence_score}%")
+        
         # Build comment based on verification status and confidence
         detailed_findings = result.get("detailed_findings", "")
         contradictions = result.get("contradictions", "")
