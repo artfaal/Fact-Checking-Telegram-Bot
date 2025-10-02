@@ -33,6 +33,7 @@ class DebugInfo:
     detailed_findings: str = ""
     contradictions: str = ""
     missing_evidence: str = ""
+    special_notes: str = ""
     
     def __post_init__(self):
         if self.sources_found is None:
@@ -364,6 +365,23 @@ class TwoStageFilter:
         ]
         allowed_domains = [d for d in allowed_domains if d]
 
+        # Check for X.com/Twitter domains
+        x_domains = [d for d in allowed_domains if 'x.com' in d or 'twitter.com' in d]
+        
+        # Special instructions for X.com/Twitter searches
+        x_instructions = ""
+        if x_domains:
+            x_instructions = f"""
+
+SPECIAL INSTRUCTIONS FOR X.COM/TWITTER:
+- Search for specific tweets, posts, and statements by the mentioned people
+- Look for recent posts (last 24-48 hours) as well as older content
+- Pay attention to verified accounts and official statements
+- Search using various formats: direct quotes, paraphrases, key phrases
+- Check replies and quote tweets for additional context
+- If searching fails, explicitly state "X.com search limitations encountered"
+"""
+
         prompt = f"""
 You are a strict fact-checker. Verify this message using web search ONLY on the specified reliable sources.
 
@@ -378,7 +396,7 @@ CRITICAL INSTRUCTIONS:
 2. Verify EVERY specific claim, detail, and statement in the message
 3. Pay special attention to precise wording (e.g., "will affect" vs "will NOT affect")
 4. Look for direct quotes or official statements that confirm or contradict the claims
-5. If any detail cannot be confirmed or contradicts found information, mark as unconfirmed/contradictory
+5. If any detail cannot be confirmed or contradicts found information, mark as unconfirmed/contradictory{x_instructions}
 
 Response in strict JSON format:
 {{
@@ -389,7 +407,8 @@ Response in strict JSON format:
   "contradictions": "Any contradictions found between message and sources",
   "direct_quotes": ["Direct quotes from sources that support or contradict the message"],
   "sources_checked": ["List of sources actually checked"],
-  "missing_evidence": "What specific claims lack evidence"
+  "missing_evidence": "What specific claims lack evidence",
+  "special_notes": "Any special circumstances like fresh content, API limitations, etc."
 }}
 
 CRITICAL: confidence_score MUST be a numeric integer between 0-100, NOT text like "ninety" or "high".
@@ -400,6 +419,13 @@ Verification criteria:
 - "contradictory" (30-59): Some claims directly contradicted by sources
 - "unconfirmed" (0-29): No supporting evidence found for key claims
 """
+
+        # Special logging for X.com searches
+        x_domains = [d for d in allowed_domains if 'x.com' in d or 'twitter.com' in d]
+        if x_domains:
+            logger.info(f"🐦 X.com поиск: проверяем домены {x_domains}")
+            logger.info(f"🔍 Поисковые запросы: {queries_text.strip() if queries_text else 'Нет специальных запросов'}")
+            logger.info(f"📝 Текст для проверки: {text[:100]}...")
 
         responses_client = self.client.responses
 
@@ -456,6 +482,19 @@ Verification criteria:
             except Exception:
                 logger.debug("📝 Полный ответ этапа 2: %r", response)
         logger.info(f"📄 Ответ этапа 2: {output_text[:200]}...")
+        
+        # Special logging for X.com search results  
+        x_domains = [d for d in allowed_domains if 'x.com' in d or 'twitter.com' in d]
+        if x_domains:
+            logger.info(f"🐦 X.com результат: {output_text[:300]}...")
+            if 'sources_checked' in output_text.lower():
+                try:
+                    temp_result = json.loads(output_text if output_text.startswith('{') else output_text[output_text.find('{'):output_text.rfind('}')+1])
+                    sources_checked = temp_result.get("sources_checked", [])
+                    x_sources_found = [s for s in sources_checked if 'x.com' in str(s).lower() or 'twitter.com' in str(s).lower()]
+                    logger.info(f"🐦 X.com источники найдены: {x_sources_found}")
+                except:
+                    logger.info("🐦 X.com: не удалось извлечь sources_checked из ответа")
 
         if not output_text:
             raise ValueError("Пустой ответ от модели этапа 2")
@@ -500,6 +539,7 @@ Verification criteria:
         detailed_findings = result.get("detailed_findings", "")
         contradictions = result.get("contradictions", "")
         missing_evidence = result.get("missing_evidence", "")
+        special_notes = result.get("special_notes", "")
         
         # Save all fields to debug_info
         if debug:
@@ -508,6 +548,7 @@ Verification criteria:
             debug.detailed_findings = detailed_findings
             debug.contradictions = contradictions
             debug.missing_evidence = missing_evidence
+            debug.special_notes = special_notes
         
         # Stage 2.5: Translate comment fields to Russian if enabled
         await self._translate_comment_fields(debug)
@@ -528,7 +569,8 @@ Verification criteria:
         fields_to_translate = [
             ('detailed_findings', 'детальные выводы'),
             ('contradictions', 'противоречия'),
-            ('missing_evidence', 'отсутствующие доказательства')
+            ('missing_evidence', 'отсутствующие доказательства'),
+            ('special_notes', 'специальные примечания')
         ]
         
         for field_name, field_description in fields_to_translate:
@@ -580,6 +622,7 @@ Verification criteria:
         detailed_findings = debug.detailed_findings if debug else ""
         contradictions = debug.contradictions if debug else ""
         missing_evidence = debug.missing_evidence if debug else ""
+        special_notes = debug.special_notes if debug else ""
         
         # Формируем комментарий на основе verification_status
         if verification_status == "confirmed" and confidence_score >= 90:
@@ -609,6 +652,10 @@ Verification criteria:
             comment = "Требует дополнительной проверки"
             if detailed_findings:
                 comment += f" - {detailed_findings}"
+        
+        # Добавляем специальные примечания если есть
+        if special_notes and special_notes.strip():
+            comment += f" [Примечание: {special_notes}]"
         
         return comment
 

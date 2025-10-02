@@ -176,6 +176,10 @@ Discord объявил новую функцию ИИ-модерации гол�
         if debug_info and debug_info.missing_evidence and debug_info.missing_evidence.strip():
             result += f"\n❓ Отсутствующие доказательства: {debug_info.missing_evidence}\n"
         
+        # Добавляем специальные примечания отдельным полем
+        if debug_info and debug_info.special_notes and debug_info.special_notes.strip():
+            result += f"\n📝 Особые обстоятельства: {debug_info.special_notes}\n"
+        
         # Добавляем источники (полный список без сокращений)
         if debug_info and debug_info.sources_found:
             sources_text = ", ".join(debug_info.sources_found)
