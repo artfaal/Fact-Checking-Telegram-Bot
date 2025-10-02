@@ -92,6 +92,25 @@ class SourcesConfig:
                     "rottentomatoes.com"
                 ]
             },
+            "social_media_verification": {
+                "description": "Источники для проверки социальных сетей и вирусного контента",
+                "domains": [
+                    "snopes.com",
+                    "factcheck.org",
+                    "politifact.com",
+                    "checkyourfact.com",
+                    "mediabiasfactcheck.com",
+                    "knowyourmeme.com",
+                    "buzzfeed.com",
+                    "mashable.com",
+                    "digitaltrends.com",
+                    "socialmediatoday.com",
+                    "techcrunch.com",
+                    "theverge.com",
+                    "engadget.com",
+                    "gizmodo.com"
+                ]
+            },
             "company_specifics": {
                 "description": "Автоматически определяемые официальные сайты",
                 "auto_detect": True,
@@ -173,6 +192,14 @@ class SourcesConfig:
             "премия", "оскар", "спектакль", "концерт"
         ]) or category == "развлечения":
             selected_domains.update(self.sources["entertainment"]["domains"])
+        
+        # Добавляем источники для проверки социальных сетей при упоминании Twitter/X, вирусного контента
+        if any(word in text_lower for word in [
+            "twitter", "твиттер", "tweet", "твит", "@", "x.com",
+            "viral", "вирусный", "trending", "трендинг", "репост", "retweet",
+            "социальные сети", "соцсети", "пост", "влияние", "заявление", "признался"
+        ]):
+            selected_domains.update(self.sources["social_media_verification"]["domains"])
         
         return list(selected_domains)
     
